@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AECM-HC — AI-Enabled Adversary Capability Model for Hyperscale Cloud</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f78166;
+    --purple: #d2a8ff;
+    --yellow: #e3b341;
+    --orange: #ffa657;
+    --teal: #39d3c3;
+
+    --c-tech: #58a6ff;
+    --c-ops: #3fb950;
+    --c-impact: #f78166;
+
+    --s1: #58a6ff;
+    --s2: #f78166;
+    --s3: #d2a8ff;
+    --s4: #e3b341;
+    --s5: #3fb950;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+  h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 40px; max-width: 760px; }
+  .section { margin-bottom: 52px; }
+  .section-meta { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+  /* ── OVERVIEW CARD ── */
+  .overview-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--c-tech), var(--c-ops), var(--c-impact));
+  }
+  .ov-stat { text-align: center; }
+  .ov-num { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+  .ov-label { font-size: 12px; color: var(--muted); }
+
+  /* ── DIMENSION TAXONOMY ── */
+  .dim-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .dim-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .dim-group-header {
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dim-group-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dim-group.tech .dim-group-header { background: rgba(88,166,255,0.1); color: var(--c-tech); border-bottom: 1px solid rgba(88,166,255,0.2); }
+  .dim-group.ops .dim-group-header { background: rgba(63,185,80,0.1); color: var(--c-ops); border-bottom: 1px solid rgba(63,185,80,0.2); }
+  .dim-group.impact .dim-group-header { background: rgba(247,129,102,0.1); color: var(--c-impact); border-bottom: 1px solid rgba(247,129,102,0.2); }
+  .dim-group.tech .dim-group-header .dot { background: var(--c-tech); }
+  .dim-group.ops .dim-group-header .dot { background: var(--c-ops); }
+  .dim-group.impact .dim-group-header .dot { background: var(--c-impact); }
+
+  .dim-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dim-item:last-child { border-bottom: none; }
+  .dim-num {
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tech .dim-num { background: rgba(88,166,255,0.15); color: var(--c-tech); }
+  .ops .dim-num { background: rgba(63,185,80,0.15); color: var(--c-ops); }
+  .impact .dim-num { background: rgba(247,129,102,0.15); color: var(--c-impact); }
+
+  .dim-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .dim-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── RUBRIC TABLE ── */
+  .rubric-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .rubric-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .rubric-table th.f-h { color: var(--muted); }
+  .rubric-table th.a-h { color: var(--yellow); }
+  .rubric-table th.p-h { color: var(--red); }
+  .rubric-table th.d-h { color: var(--muted); }
+
+  .rubric-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .rubric-table tr:last-child td { border-bottom: none; }
+  .rubric-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .rubric-table td.dim-cell {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .group-sep td {
+    background: var(--surface);
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+  }
+  .group-sep.tech-sep td { color: var(--c-tech); }
+  .group-sep.ops-sep td { color: var(--c-ops); }
+  .group-sep.impact-sep td { color: var(--c-impact); }
+
+  /* ── RADAR CHART ── */
+  .radar-wrapper {
+    display: grid;
+    grid-template-columns: 560px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .radar-svg-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  .radar-svg-container svg { max-width: 100%; }
+
+  .radar-legend { display: flex; flex-direction: column; gap: 10px; }
+  .scenario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scenario-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .sc-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .sc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sc-name { font-weight: 600; font-size: 13px; }
+  .sc-id { font-size: 10px; font-weight: 700; color: var(--muted); margin-left: auto; }
+  .sc-desc { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+
+  .sc-bar-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .sc-bar-label { font-size: 10px; color: var(--muted); width: 50px; flex-shrink: 0; }
+  .sc-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .sc-bar-fill { height: 100%; border-radius: 3px; }
+  .sc-score { font-size: 10px; color: var(--muted); width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* ── HEATMAP ── */
+  .heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .heatmap-table th {
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .heatmap-table th.dim-th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    padding-left: 12px;
+  }
+  .heatmap-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    border-right: 1px solid rgba(48,54,61,0.5);
+    text-align: center;
+  }
+  .heatmap-table td.dim-name-cell {
+    text-align: left;
+    padding-left: 12px;
+    font-size: 12px;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .cell-f {
+    background: rgba(139,148,158,0.15);
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+  }
+  .cell-a {
+    background: rgba(227,179,65,0.18);
+    color: var(--yellow);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+  }
+  .cell-p {
+    background: rgba(247,129,102,0.22);
+    color: var(--red);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+  }
+  .group-row-sep td {
+    background: var(--surface);
+    padding: 5px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .group-row-sep.tech-r td { color: var(--c-tech); }
+  .group-row-sep.ops-r td { color: var(--c-ops); }
+  .group-row-sep.impact-r td { color: var(--c-impact); }
+
+  .heatmap-header-cell { writing-mode: unset; }
+
+  .level-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+  .level-legend-item { display: flex; align-items: center; gap: 6px; }
+  .level-swatch {
+    width: 28px; height: 14px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="margin-bottom: 40px;">
+  <h1>AI-Enabled Adversary Capability Model for Hyperscale Cloud</h1>
+  <div style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:10px;">AECM-HC</div>
+  <p class="subtitle">A 12-dimension scoring framework for characterizing how AI augments adversary behavior in hyperscale cloud environments — across technical enablement, operational tempo, and impact potential. Complements MITRE ATT&CK with an adversary-perspective lens on AI-driven threats.</p>
+</div>
+
+<!-- OVERVIEW STATS -->
+<div class="section">
+  <div class="overview-card">
+    <div class="ov-stat">
+      <div class="ov-num" style="color:var(--accent);">12</div>
+      <div class="ov-label">Adversary Capability Dimensions</div>
+    </div>
+    <div class="ov-stat">
+      <div class="ov-num" style="color:var(--green);">3</div>
+      <div class="ov-label">Capability Groups<br>(Technical · Operational · Impact)</div>
+    </div>
+    <div class="ov-stat">
+      <div class="ov-num" style="color:var(--red);">3</div>
+      <div class="ov-label">Maturity Levels<br>(Foundational · Advancing · Peak)</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIMENSION TAXONOMY -->
+<div class="section">
+  <h2>Dimension Taxonomy</h2>
+  <p class="section-meta">Three capability groups, four dimensions each. Groups build on one another: technical enablement shapes operational execution, which drives impact.</p>
+
+  <div class="dim-grid">
+
+    <!-- TECHNICAL ENABLEMENT -->
+    <div class="dim-group tech">
+      <div class="dim-group-header"><div class="dot"></div>Technical Enablement</div>
+      <div class="dim-item">
+        <div class="dim-num">T1</div>
+        <div>
+          <div class="dim-name">Sophistication</div>
+          <div class="dim-desc">Complexity and novelty of AI-driven attack paths; from phishing automation to environment-aware, adaptive exploit chains.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">T2</div>
+        <div>
+          <div class="dim-name">Automation / Autonomy</div>
+          <div class="dim-desc">Degree of human-out-of-the-loop execution; from episodic AI assistance to fully autonomous end-to-end operations.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">T3</div>
+        <div>
+          <div class="dim-name">Adaptivity / Learning Rate</div>
+          <div class="dim-desc">Speed of tactical iteration when encountering resistance; AI-augmented campaigns can adjust in real time vs. human-paced cycles.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">T4</div>
+        <div>
+          <div class="dim-name">Precision / Targeting Quality</div>
+          <div class="dim-desc">Effectiveness of identifying high-value targets; AI infers relationships between identities, services, and data flows at scale.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERATIONAL -->
+    <div class="dim-group ops">
+      <div class="dim-group-header"><div class="dot"></div>Operational</div>
+      <div class="dim-item">
+        <div class="dim-num">O1</div>
+        <div>
+          <div class="dim-name">Scale</div>
+          <div class="dim-desc">Breadth of concurrent activity; automated campaigns can probe thousands of targets simultaneously across tenants and regions.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">O2</div>
+        <div>
+          <div class="dim-name">Speed / Tempo</div>
+          <div class="dim-desc">Rate of progression through the intrusion lifecycle; high tempo compresses defender dwell time and response windows.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">O3</div>
+        <div>
+          <div class="dim-name">Stealth / Detectability</div>
+          <div class="dim-desc">Ability to minimize observable footprint; AI shapes traffic patterns and behavioral signatures to blend with legitimate activity.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">O4</div>
+        <div>
+          <div class="dim-name">Kill-Chain Coverage</div>
+          <div class="dim-desc">Pervasiveness of AI across all intrusion phases — from reconnaissance and delivery through command-and-control and objectives.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACT -->
+    <div class="dim-group impact">
+      <div class="dim-group-header"><div class="dot"></div>Impact</div>
+      <div class="dim-item">
+        <div class="dim-num">I1</div>
+        <div>
+          <div class="dim-name">Blast Radius / Systemic Impact</div>
+          <div class="dim-desc">Horizontal spread across tenants and vertical penetration toward privileged control surfaces or platform-level compromise.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">I2</div>
+        <div>
+          <div class="dim-name">Persistence / Durability</div>
+          <div class="dim-desc">Resilience of access when defenders rotate credentials or update infrastructure; AI manages redundancy and evasion.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">I3</div>
+        <div>
+          <div class="dim-name">Economic Efficiency</div>
+          <div class="dim-desc">Cost asymmetry between attacker operations and defender mitigation; Peak means near-zero marginal cost for extensive operations.</div>
+        </div>
+      </div>
+      <div class="dim-item">
+        <div class="dim-num">I4</div>
+        <div>
+          <div class="dim-name">Human / Social Exploitation</div>
+          <div class="dim-desc">AI-enhanced impersonation, communication, and manipulation tightly integrated with technical intrusion channels.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCORING RUBRIC -->
+<div class="section">
+  <h2>Scoring Rubric</h2>
+  <p class="section-meta">Three qualitative levels avoid false precision while maintaining consistency across evaluators. Levels represent meaningful shifts in operational maturity, not incremental gradations.</p>
+
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
+    <div style="padding:14px 16px; background:rgba(139,148,158,0.1); border:1px solid rgba(139,148,158,0.2); border-radius:8px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:700; margin-bottom:6px;">Foundational</div>
+      <div style="font-size:12px; color:var(--muted); line-height:1.5;">Baseline conditions — AI has limited influence on attacker behavior. Operations are largely manual or rely on basic scripting. Conventional tradecraft with minimal AI augmentation.</div>
+    </div>
+    <div style="padding:14px 16px; background:rgba(227,179,65,0.08); border:1px solid rgba(227,179,65,0.2); border-radius:8px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--yellow); font-weight:700; margin-bottom:6px;">Advancing</div>
+      <div style="font-size:12px; color:var(--muted); line-height:1.5;">AI meaningfully shapes tactics and decision-making without dominating the intrusion lifecycle. Semi-autonomous workflows, context-aware actions, and measurable capability uplift.</div>
+    </div>
+    <div style="padding:14px 16px; background:rgba(247,129,102,0.08); border:1px solid rgba(247,129,102,0.2); border-radius:8px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--red); font-weight:700; margin-bottom:6px;">Peak</div>
+      <div style="font-size:12px; color:var(--muted); line-height:1.5;">Upper bound — automation, adaptivity, and operational reach converge. Highly sophisticated and efficient behavior with minimal human oversight requirements across the full intrusion lifecycle.</div>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
+    <table class="rubric-table">
+      <thead>
+        <tr>
+          <th class="d-h" style="width:200px;">Dimension</th>
+          <th class="f-h" style="width:220px;">Foundational</th>
+          <th class="a-h" style="width:220px;">Advancing</th>
+          <th class="p-h">Peak</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="group-sep tech-sep"><td colspan="4">Technical Enablement</td></tr>
+        <tr>
+          <td class="dim-cell">Sophistication</td>
+          <td>Basic AI assistance with limited novelty</td>
+          <td>AI enables multi-step reasoning or chaining</td>
+          <td>AI creates advanced, adaptive, and novel attack paths</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Automation / Autonomy</td>
+          <td>Manual activity with sporadic AI support</td>
+          <td>Semi-autonomous workflows</td>
+          <td>Fully autonomous agents conducting end-to-end operations</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Adaptivity / Learning Rate</td>
+          <td>Slow manual adjustments</td>
+          <td>Periodic AI-guided optimization</td>
+          <td>Continuous real-time learning and adaptation</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Precision / Targeting</td>
+          <td>Broad and imprecise targeting</td>
+          <td>Context-aware prioritization</td>
+          <td>Highly targeted identification of high-value assets</td>
+        </tr>
+        <tr class="group-sep ops-sep"><td colspan="4">Operational</td></tr>
+        <tr>
+          <td class="dim-cell">Scale</td>
+          <td>Limited concurrent operations</td>
+          <td>Moderate parallelization</td>
+          <td>Planet-scale automated activity across tenants and regions</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Speed / Tempo</td>
+          <td>Hours or days per iteration</td>
+          <td>Frequent automated cycles</td>
+          <td>Near-real-time adjustment and movement</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Stealth / Detectability</td>
+          <td>Easily identifiable behaviors</td>
+          <td>Moderate camouflage</td>
+          <td>AI-shaped activity blending seamlessly with legitimate traffic</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Kill-Chain Coverage</td>
+          <td>AI used in isolated attack phases</td>
+          <td>Several AI-supported phases</td>
+          <td>AI enhances every phase of the intrusion lifecycle</td>
+        </tr>
+        <tr class="group-sep impact-sep"><td colspan="4">Impact</td></tr>
+        <tr>
+          <td class="dim-cell">Blast Radius / Systemic</td>
+          <td>Minimal localized impact</td>
+          <td>Moderate spread or privilege gain</td>
+          <td>Large-scale or control-plane–level compromise</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Persistence / Durability</td>
+          <td>Access easily removed</td>
+          <td>Some evasion of remediation</td>
+          <td>AI-managed long-term persistence with redundancy</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Economic Efficiency</td>
+          <td>High attacker cost</td>
+          <td>Balanced cost</td>
+          <td>Near-zero marginal cost for extensive operations</td>
+        </tr>
+        <tr>
+          <td class="dim-cell">Human / Social Exploit.</td>
+          <td>Generic phishing or messaging</td>
+          <td>Contextual impersonation</td>
+          <td>AI-driven multi-channel manipulation + technical integration</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SCENARIO COMPARISON -->
+<div class="section">
+  <h2>Applied Scenario Comparison</h2>
+  <p class="section-meta">Five applied adversary scenarios scored against the AECM-HC rubric. Each radar axis represents one dimension; outer ring = Peak, middle = Advancing, inner = Foundational. <strong style="color:var(--text);">Hover a scenario card</strong> to isolate its profile.</p>
+
+  <div class="radar-wrapper">
+    <div class="radar-svg-container">
+      <svg id="radar" width="520" height="520" viewBox="0 0 520 520"></svg>
+    </div>
+
+    <div class="radar-legend">
+      <div id="scenario-cards"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HEATMAP -->
+<div class="section">
+  <h2>Capability Heatmap</h2>
+  <p class="section-meta">At-a-glance view of all scenarios across all dimensions. Hover rows to compare profiles.</p>
+
+  <div class="level-legend">
+    <div class="level-legend-item">
+      <div class="level-swatch" style="background:rgba(139,148,158,0.2); color:var(--muted);">F</div>
+      <span style="color:var(--muted);">Foundational</span>
+    </div>
+    <div class="level-legend-item">
+      <div class="level-swatch" style="background:rgba(227,179,65,0.2); color:var(--yellow);">A</div>
+      <span style="color:var(--muted);">Advancing</span>
+    </div>
+    <div class="level-legend-item">
+      <div class="level-swatch" style="background:rgba(247,129,102,0.25); color:var(--red);">P</div>
+      <span style="color:var(--muted);">Peak</span>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto; border:1px solid var(--border); border-radius:8px;">
+    <table class="heatmap-table" id="heatmap"></table>
+  </div>
+</div>
+
+<hr>
+<div style="font-size:12px; color:var(--muted); text-align:center; line-height:2;">
+  <span style="color:var(--text); font-weight:600;">Forrest Rae</span><br>
+  AECM-HC &nbsp;·&nbsp; <code>references/adversary-capability-model/ai_enabled_adversary_capability_model_for_hyperscale_cloud.md</code>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+const DIMS = [
+  { id: 'T1', label: 'Sophistication',          short: 'Sophistication',  group: 'tech'   },
+  { id: 'T2', label: 'Automation / Autonomy',    short: 'Automation',      group: 'tech'   },
+  { id: 'T3', label: 'Adaptivity / Learning',    short: 'Adaptivity',      group: 'tech'   },
+  { id: 'T4', label: 'Precision / Targeting',    short: 'Precision',       group: 'tech'   },
+  { id: 'O1', label: 'Scale',                    short: 'Scale',           group: 'ops'    },
+  { id: 'O2', label: 'Speed / Tempo',            short: 'Speed',           group: 'ops'    },
+  { id: 'O3', label: 'Stealth / Detectability',  short: 'Stealth',         group: 'ops'    },
+  { id: 'O4', label: 'Kill-Chain Coverage',      short: 'Kill-Chain',      group: 'ops'    },
+  { id: 'I1', label: 'Blast Radius / Systemic',  short: 'Blast Radius',    group: 'impact' },
+  { id: 'I2', label: 'Persistence / Durability', short: 'Persistence',     group: 'impact' },
+  { id: 'I3', label: 'Economic Efficiency',      short: 'Econ. Efficiency',group: 'impact' },
+  { id: 'I4', label: 'Human / Social Exploit.',  short: 'Human/Social',    group: 'impact' },
+];
+
+const GROUP_COLORS = { tech: '#58a6ff', ops: '#3fb950', impact: '#f78166' };
+
+// Scores: 1=Foundational, 2=Advancing, 3=Peak
+const SCENARIOS = [
+  {
+    id: 'S1',
+    name: 'Lazarus Group & RC 227',
+    short: 'Lazarus Group',
+    color: '#58a6ff',
+    scores: [2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 3, 3],
+    desc: 'Nation-state actor with expanding AI research infrastructure. Blend of established tradecraft and emerging AI augmentation; trajectory toward Peak.',
+  },
+  {
+    id: 'S2',
+    name: 'APT + XBOW Engine',
+    short: 'APT + XBOW',
+    color: '#f78166',
+    scores: [3, 3, 3, 3, 3, 3, 2, 3, 3, 2, 3, 2],
+    desc: 'Established APT acquiring autonomous pentesting engine. Near-Peak across most dimensions; human strategic oversight retained.',
+  },
+  {
+    id: 'S3',
+    name: 'LLM-Integrated Worm',
+    short: 'LLM Worm',
+    color: '#d2a8ff',
+    scores: [3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3, 1],
+    desc: 'Self-propagating worm with embedded language model. Peak autonomy, scale, and persistence. No reliance on human-in-the-loop or C2.',
+  },
+  {
+    id: 'S4',
+    name: 'Insider Threat (GenAI)',
+    short: 'Insider Threat',
+    color: '#e3b341',
+    scores: [2, 2, 2, 3, 1, 2, 3, 2, 2, 2, 2, 3],
+    desc: 'Trusted insider using generative AI for reconnaissance, privilege escalation, and detection evasion. Peak precision and stealth despite limited scale.',
+  },
+  {
+    id: 'S5',
+    name: 'AI Criminal Syndicate',
+    short: 'Criminal Syndicate',
+    color: '#3fb950',
+    scores: [2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2],
+    desc: 'Financially motivated actors using commodity AI for fraud, ransomware, and mass credential attacks. Predominantly Advancing; prioritizes monetization over stealth.',
+  },
+];
+
+// ── RADAR CHART ─────────────────────────────────────────────────────────────
+
+const svg = document.getElementById('radar');
+const CX = 260, CY = 260, MAX_R = 195;
+const N = DIMS.length;
+const ns = 'http://www.w3.org/2000/svg';
+
+function polarToXY(angle, r) {
+  const a = (angle - 90) * Math.PI / 180;
+  return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a) };
+}
+
+function svgEl(tag, attrs, parent) {
+  const el = document.createElementNS(ns, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+
+// Background
+svgEl('rect', { width: 520, height: 520, fill: '#161b22', rx: 8 }, svg);
+
+// Grid rings (Foundational=1, Advancing=2, Peak=3)
+const ringLabels = ['F', 'A', 'P'];
+const ringColors = ['rgba(139,148,158,0.15)', 'rgba(227,179,65,0.12)', 'rgba(247,129,102,0.12)'];
+const ringTextColors = ['#8b949e', '#e3b341', '#f78166'];
+for (let level = 1; level <= 3; level++) {
+  const r = (level / 3) * MAX_R;
+  // Build ring polygon from all axis points
+  const pts = Array.from({length: N}, (_, i) => {
+    const p = polarToXY(i * 360/N, r);
+    return `${p.x},${p.y}`;
+  }).join(' ');
+  svgEl('polygon', { points: pts, fill: ringColors[level-1], stroke: ringTextColors[level-1], 'stroke-width': 0.5, 'stroke-dasharray': level < 3 ? '3,3' : 'none', opacity: 0.6 }, svg);
+}
+
+// Axis lines
+for (let i = 0; i < N; i++) {
+  const angle = i * 360 / N;
+  const outer = polarToXY(angle, MAX_R);
+  const inner = polarToXY(angle, 0);
+  const gc = GROUP_COLORS[DIMS[i].group];
+  svgEl('line', { x1: CX, y1: CY, x2: outer.x, y2: outer.y, stroke: gc, 'stroke-width': 0.8, opacity: 0.35 }, svg);
+
+  // Axis dot at tip
+  svgEl('circle', { cx: outer.x, cy: outer.y, r: 3, fill: gc, opacity: 0.7 }, svg);
+
+  // Label
+  const labelR = MAX_R + 26;
+  const lp = polarToXY(angle, labelR);
+  const label = svgEl('text', {
+    x: lp.x, y: lp.y,
+    fill: gc,
+    'font-size': 10,
+    'font-family': '-apple-system, BlinkMacSystemFont, sans-serif',
+    'font-weight': 600,
+    'text-anchor': Math.abs(lp.x - CX) < 8 ? 'middle' : lp.x > CX ? 'start' : 'end',
+    'dominant-baseline': lp.y < CY - 10 ? 'auto' : lp.y > CY + 10 ? 'hanging' : 'middle',
+  }, svg);
+  label.textContent = DIMS[i].short;
+}
+
+// Scenario polygons (drawn in reverse so S1 is on top)
+const polygonMap = {};
+[...SCENARIOS].reverse().forEach(sc => {
+  const pts = sc.scores.map((s, i) => {
+    const r = (s / 3) * MAX_R;
+    const p = polarToXY(i * 360 / N, r);
+    return `${p.x},${p.y}`;
+  }).join(' ');
+  const poly = svgEl('polygon', { points: pts, fill: sc.color, 'fill-opacity': 0.12, stroke: sc.color, 'stroke-width': 1.8, 'stroke-opacity': 0.85 }, svg);
+  polygonMap[sc.id] = poly;
+});
+
+// Center dot
+svgEl('circle', { cx: CX, cy: CY, r: 3, fill: '#8b949e', opacity: 0.5 }, svg);
+
+// Ring level labels (place at top axis = Sophistication)
+[1,2,3].forEach(level => {
+  const r = (level / 3) * MAX_R;
+  const p = polarToXY(0, r);
+  const t = svgEl('text', { x: p.x + 5, y: p.y, fill: ringTextColors[level-1], 'font-size': 9, 'font-family': 'sans-serif', 'font-weight': 600, opacity: 0.8 }, svg);
+  t.textContent = ringLabels[level-1];
+});
+
+
+// ── SCENARIO CARDS ──────────────────────────────────────────────────────────
+
+function levelLabel(s) { return ['', 'F', 'A', 'P'][s]; }
+function levelPct(scores) { return Math.round((scores.reduce((a,b)=>a+b,0) / (scores.length * 3)) * 100); }
+
+const cardsContainer = document.getElementById('scenario-cards');
+cardsContainer.style.display = 'flex';
+cardsContainer.style.flexDirection = 'column';
+cardsContainer.style.gap = '8px';
+
+SCENARIOS.forEach(sc => {
+  const pct = levelPct(sc.scores);
+  const peakCount = sc.scores.filter(s => s === 3).length;
+  const foundCount = sc.scores.filter(s => s === 1).length;
+
+  const card = document.createElement('div');
+  card.className = 'scenario-card';
+  card.style.cssText = `border-left-color: ${sc.color};`;
+  card.style.setProperty('--sc-color', sc.color);
+
+  // border left trick
+  const beforeStyle = document.createElement('style');
+  beforeStyle.textContent = '';
+  document.head.appendChild(beforeStyle);
+  card.style.borderLeft = `3px solid ${sc.color}`;
+
+  card.innerHTML = `
+    <div class="sc-header">
+      <div class="sc-dot" style="background:${sc.color}"></div>
+      <div class="sc-name">${sc.name}</div>
+      <div class="sc-id">${sc.id}</div>
+    </div>
+    <div class="sc-desc">${sc.desc}</div>
+    <div class="sc-bar-row">
+      <div class="sc-bar-label" style="color:${sc.color}">Overall</div>
+      <div class="sc-bar-track">
+        <div class="sc-bar-fill" style="width:${pct}%; background:${sc.color}; opacity:0.8;"></div>
+      </div>
+      <div class="sc-score" style="color:${sc.color}">${pct}%</div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:7px; font-size:10px; color:var(--muted);">
+      <span><span style="color:var(--red); font-weight:700;">${peakCount}</span> Peak</span>
+      <span><span style="color:var(--yellow); font-weight:700;">${sc.scores.filter(s=>s===2).length}</span> Advancing</span>
+      ${foundCount > 0 ? `<span><span style="color:var(--muted); font-weight:700;">${foundCount}</span> Foundational</span>` : ''}
+    </div>
+  `;
+  card.style.cursor = 'pointer';
+  card.style.transition = 'background 0.15s';
+
+  card.addEventListener('mouseenter', () => {
+    Object.entries(polygonMap).forEach(([id, poly]) => {
+      if (id === sc.id) {
+        poly.setAttribute('fill-opacity', '0.28');
+        poly.setAttribute('stroke-opacity', '1');
+        poly.setAttribute('stroke-width', '2.5');
+      } else {
+        poly.setAttribute('fill-opacity', '0.03');
+        poly.setAttribute('stroke-opacity', '0.1');
+        poly.setAttribute('stroke-width', '1');
+      }
+    });
+    card.style.background = `color-mix(in srgb, ${sc.color} 10%, var(--surface))`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    Object.entries(polygonMap).forEach(([, poly]) => {
+      poly.setAttribute('fill-opacity', '0.12');
+      poly.setAttribute('stroke-opacity', '0.85');
+      poly.setAttribute('stroke-width', '1.8');
+    });
+    card.style.background = '';
+  });
+
+  cardsContainer.appendChild(card);
+});
+
+
+// ── HEATMAP ──────────────────────────────────────────────────────────────────
+
+const table = document.getElementById('heatmap');
+
+// Header row
+const thead = table.createTHead();
+const hrow = thead.insertRow();
+const thDim = document.createElement('th');
+thDim.className = 'dim-th';
+thDim.textContent = 'Dimension';
+thDim.style.width = '220px';
+hrow.appendChild(thDim);
+
+SCENARIOS.forEach(sc => {
+  const th = document.createElement('th');
+  th.className = 'heatmap-header-cell';
+  th.style.color = sc.color;
+  th.innerHTML = `<span style="font-size:10px;">${sc.id}</span><br><span style="font-size:11px;">${sc.short}</span>`;
+  hrow.appendChild(th);
+});
+
+// Add avg column header
+const thAvg = document.createElement('th');
+thAvg.style.color = 'var(--muted)';
+thAvg.innerHTML = `<span style="font-size:10px;">AVG</span>`;
+hrow.appendChild(thAvg);
+
+// Body
+const tbody = table.createTBody();
+
+const groups = [
+  { key: 'tech',   label: 'Technical Enablement', cls: 'tech-r'   },
+  { key: 'ops',    label: 'Operational',           cls: 'ops-r'    },
+  { key: 'impact', label: 'Impact',                cls: 'impact-r' },
+];
+
+groups.forEach(g => {
+  // Group separator
+  const sepRow = tbody.insertRow();
+  sepRow.className = `group-row-sep ${g.cls}`;
+  const sepCell = sepRow.insertCell();
+  sepCell.colSpan = SCENARIOS.length + 2;
+  sepCell.textContent = g.label;
+
+  const gDims = DIMS.filter(d => d.group === g.key);
+  gDims.forEach(dim => {
+    const row = tbody.insertRow();
+    row.style.transition = 'background 0.15s';
+    row.onmouseenter = () => row.style.background = 'rgba(255,255,255,0.03)';
+    row.onmouseleave = () => row.style.background = '';
+
+    const dimCell = row.insertCell();
+    dimCell.className = 'dim-name-cell';
+    dimCell.innerHTML = `<span style="font-size:10px; color:${GROUP_COLORS[g.key]}; font-weight:700; margin-right:6px;">${dim.id}</span>${dim.label}`;
+
+    const dimIdx = DIMS.indexOf(dim);
+    let total = 0;
+
+    SCENARIOS.forEach(sc => {
+      const s = sc.scores[dimIdx];
+      total += s;
+      const cell = row.insertCell();
+      const levelMap = { 1: ['cell-f', 'F'], 2: ['cell-a', 'A'], 3: ['cell-p', 'P'] };
+      const [cls, lbl] = levelMap[s];
+      cell.innerHTML = `<span class="${cls}" style="display:inline-block; width:28px; padding:2px 0; text-align:center; border-radius:3px;">${lbl}</span>`;
+    });
+
+    // Average cell
+    const avgCell = row.insertCell();
+    const avg = total / SCENARIOS.length;
+    const avgPct = Math.round((avg / 3) * 100);
+    let avgCls = avg >= 2.5 ? 'cell-p' : avg >= 1.5 ? 'cell-a' : 'cell-f';
+    avgCell.innerHTML = `<span class="${avgCls}" style="display:inline-block; padding:2px 5px; border-radius:3px; font-size:10px;">${avg.toFixed(1)}</span>`;
+  });
+});
+
+// Footer row with column totals
+const footRow = tbody.insertRow();
+footRow.style.borderTop = '2px solid var(--border)';
+const footLabel = footRow.insertCell();
+footLabel.className = 'dim-name-cell';
+footLabel.style.fontWeight = '600';
+footLabel.textContent = 'Overall Score';
+
+SCENARIOS.forEach(sc => {
+  const pct = levelPct(sc.scores);
+  const cell = footRow.insertCell();
+  cell.style.textAlign = 'center';
+  cell.style.fontWeight = '700';
+  cell.style.fontSize = '12px';
+  cell.style.color = sc.color;
+  cell.textContent = `${pct}%`;
+});
+
+// avg of avgs
+const grandAvg = SCENARIOS.reduce((acc, sc) => acc + levelPct(sc.scores), 0) / SCENARIOS.length;
+const footAvg = footRow.insertCell();
+footAvg.style.textAlign = 'center';
+footAvg.style.fontWeight = '700';
+footAvg.style.fontSize = '12px';
+footAvg.style.color = 'var(--muted)';
+footAvg.textContent = `${Math.round(grandAvg)}%`;
+
+</script>
+</body>
+</html>

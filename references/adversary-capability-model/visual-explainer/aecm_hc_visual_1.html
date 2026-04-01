@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AECM-HC v2 — AI-Enabled Adversary Capability Model</title>
+<style>
+  :root {
+    --bg: #080c12;
+    --surface: #0f1923;
+    --surface2: #141f2e;
+    --border: #1e2d3d;
+    --text: #dde6f0;
+    --muted: #6b8299;
+    --dim: #4a6070;
+
+    --blue: #4c9de8;
+    --blue-glow: rgba(76,157,232,0.15);
+    --green: #2ec4a0;
+    --green-glow: rgba(46,196,160,0.15);
+    --amber: #e8a83a;
+    --amber-glow: rgba(232,168,58,0.15);
+    --red: #e85757;
+    --red-glow: rgba(232,87,87,0.15);
+    --purple: #a47de8;
+
+    --level-f: #4a6070;
+    --level-a: #e8a83a;
+    --level-p: #e85757;
+
+    --c-tech: #4c9de8;
+    --c-ops: #2ec4a0;
+    --c-impact: #e85757;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1080px; margin: 0 auto; padding: 52px 28px 80px; }
+
+  section { margin-bottom: 64px; }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 64px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 660px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .hero-stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-stat-num.tech { color: var(--c-tech); }
+  .hero-stat-num.ops  { color: var(--c-ops); }
+  .hero-stat-num.imp  { color: var(--c-impact); }
+  .hero-stat-num.total { color: var(--text); }
+
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .section-label-bar {
+    width: 3px;
+    height: 18px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-label-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── CORE IDEA ── */
+  .core-idea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .core-idea::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(76,157,232,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .core-idea-q {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .core-idea-a {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 740px;
+    line-height: 1.75;
+  }
+
+  .core-idea-a strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── ESCALATION SPECTRUM ── */
+  .spectrum {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+
+  .spec-level {
+    padding: 24px 22px;
+    position: relative;
+  }
+
+  .spec-level.f { background: rgba(74,96,112,0.12); }
+  .spec-level.a { background: rgba(232,168,58,0.08); }
+  .spec-level.p { background: rgba(232,87,87,0.10); }
+
+  .spec-level::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .spec-level.f::after { background: var(--level-f); }
+  .spec-level.a::after { background: var(--level-a); }
+  .spec-level.p::after { background: var(--level-p); }
+
+  .spec-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  .spec-level.f .spec-badge { background: rgba(74,96,112,0.3); color: var(--level-f); }
+  .spec-level.a .spec-badge { background: rgba(232,168,58,0.15); color: var(--level-a); }
+  .spec-level.p .spec-badge { background: rgba(232,87,87,0.15); color: var(--level-p); }
+
+  .spec-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .spec-level.f .spec-title { color: #7a96a8; }
+  .spec-level.a .spec-title { color: var(--level-a); }
+  .spec-level.p .spec-title { color: var(--level-p); }
+
+  .spec-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .spec-signals {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .spec-signals li {
+    font-size: 11px;
+    color: var(--dim);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .spec-signals li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+  }
+
+  /* ── DIMENSION MAP ── */
+  .dim-map {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .dim-group {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .dim-group-head {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dim-group-head.tech { background: rgba(76,157,232,0.08); }
+  .dim-group-head.ops  { background: rgba(46,196,160,0.08); }
+  .dim-group-head.impact { background: rgba(232,87,87,0.08); }
+
+  .dim-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+
+  .tech .dim-icon    { background: rgba(76,157,232,0.15); }
+  .ops .dim-icon     { background: rgba(46,196,160,0.15); }
+  .impact .dim-icon  { background: rgba(232,87,87,0.15); }
+
+  .dim-group-name {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .tech .dim-group-name    { color: var(--c-tech); }
+  .ops .dim-group-name     { color: var(--c-ops); }
+  .impact .dim-group-name  { color: var(--c-impact); }
+
+  .dim-group-sub {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .dim-list {
+    padding: 10px 0;
+  }
+
+  .dim-row {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    align-items: start;
+  }
+
+  .dim-row:last-child { border-bottom: none; }
+
+  .dim-n {
+    font-size: 10px;
+    font-weight: 700;
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .tech .dim-n    { background: rgba(76,157,232,0.12); color: var(--c-tech); }
+  .ops .dim-n     { background: rgba(46,196,160,0.12); color: var(--c-ops); }
+  .impact .dim-n  { background: rgba(232,87,87,0.12); color: var(--c-impact); }
+
+  .dim-content {}
+
+  .dim-content-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .dim-content-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ── RUBRIC HEAT MAP ── */
+  .rubric-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .rubric-hdr {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 1fr;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rubric-hdr-cell {
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .rubric-hdr-cell.dim-col { color: var(--muted); }
+  .rubric-hdr-cell.f-col { color: var(--level-f); }
+  .rubric-hdr-cell.a-col { color: var(--level-a); }
+  .rubric-hdr-cell.p-col { color: var(--level-p); }
+
+  .rubric-group-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rubric-group-cell {
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rubric-group-cell.tech   { color: var(--c-tech); }
+  .rubric-group-cell.ops    { color: var(--c-ops); }
+  .rubric-group-cell.impact { color: var(--c-impact); }
+
+  .rubric-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 1fr;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .rubric-row:last-child { border-bottom: none; }
+
+  .rubric-row:hover .rubric-cell { background: rgba(255,255,255,0.015); }
+
+  .rubric-cell {
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.45;
+    vertical-align: top;
+    border-right: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .rubric-cell:last-child { border-right: none; }
+
+  .rubric-cell.dim-c {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .rubric-cell.f-c { color: var(--dim); }
+  .rubric-cell.a-c { color: rgba(232,168,58,0.8); }
+  .rubric-cell.p-c { color: rgba(232,87,87,0.85); }
+
+  /* ── DO / DON'T ── */
+  .central-q {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 28px;
+    line-height: 1.4;
+  }
+
+  .bifurcation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .bif-card {
+    border-radius: 10px;
+    padding: 24px 24px;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bif-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .bif-card.dont {
+    background: rgba(232,87,87,0.05);
+    border-color: rgba(232,87,87,0.25);
+  }
+
+  .bif-card.dont::before {
+    background: radial-gradient(ellipse at 80% 20%, rgba(232,87,87,0.08) 0%, transparent 60%);
+  }
+
+  .bif-card.do {
+    background: rgba(46,196,160,0.05);
+    border-color: rgba(46,196,160,0.25);
+  }
+
+  .bif-card.do::before {
+    background: radial-gradient(ellipse at 20% 20%, rgba(46,196,160,0.08) 0%, transparent 60%);
+  }
+
+  .bif-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bif-label-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .dont .bif-label { color: var(--red); }
+  .dont .bif-label-icon { background: rgba(232,87,87,0.2); }
+
+  .do .bif-label { color: var(--green); }
+  .do .bif-label-icon { background: rgba(46,196,160,0.2); }
+
+  .bif-heading {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .dont .bif-heading { color: rgba(232,87,87,0.9); }
+  .do .bif-heading   { color: rgba(46,196,160,0.9); }
+
+  .bif-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bif-item {
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.55;
+  }
+
+  .dont .bif-item::before { content: '✕'; position: absolute; left: 0; color: rgba(232,87,87,0.6); font-size: 10px; top: 2px; }
+  .do   .bif-item::before { content: '✓'; position: absolute; left: 0; color: rgba(46,196,160,0.7); font-size: 10px; top: 2px; }
+
+  .bif-item strong { color: var(--text); font-weight: 600; }
+
+  /* ── ASYMMETRY CALLOUT ── */
+  .asymmetry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 20px 24px;
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .asym-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .asym-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .asym-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  .footer-left {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+
+  .footer-right {
+    font-size: 11px;
+    color: var(--dim);
+    text-align: right;
+  }
+
+  /* ── UTILITIES ── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  .pill.tech   { background: rgba(76,157,232,0.1);  color: var(--c-tech);   }
+  .pill.ops    { background: rgba(46,196,160,0.1);  color: var(--c-ops);    }
+  .pill.impact { background: rgba(232,87,87,0.1);   color: var(--c-impact); }
+  .pill.tech   .pill-dot  { background: var(--c-tech); }
+  .pill.ops    .pill-dot  { background: var(--c-ops); }
+  .pill.impact .pill-dot  { background: var(--c-impact); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-eyebrow">Reference Framework &mdash; AECM-HC</div>
+    <h1>How AI Changes What Adversaries Can Do to Hyperscale Cloud</h1>
+    <p class="hero-sub">
+      The AI-Enabled Adversary Capability Model for Hyperscale Cloud gives security and leadership teams a shared vocabulary for understanding the new shape of adversary capability — not a new list of techniques, but a structured view of how AI changes the <em>speed</em>, <em>scale</em>, and <em>economics</em> of attacks.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-stat">
+        <span class="hero-stat-num total">12</span>
+        <span class="hero-stat-label">Dimensions</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num tech">4</span>
+        <span class="hero-stat-label">Technical Enablement</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num ops">4</span>
+        <span class="hero-stat-label">Operational</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num imp">4</span>
+        <span class="hero-stat-label">Impact</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CORE IDEA ── -->
+  <section>
+    <div class="section-label">
+      <div class="section-label-bar" style="background:var(--blue)"></div>
+      <span class="section-label-text">The Central Insight</span>
+    </div>
+    <div class="core-idea">
+      <div class="core-idea-q">AI does not create new types of attacks — it removes the constraints that once limited how dangerous attackers could become.</div>
+      <div class="core-idea-a">
+        Historically, sophisticated attacks were expensive and slow: they required skilled people, manual reconnaissance, and deliberate iteration. AI dissolves those constraints. Attackers using AI can now <strong>operate at machine speed</strong>, adapt in near-real time when they encounter resistance, and <strong>target high-value systems with precision</strong> that was previously the exclusive province of well-resourced intelligence agencies. AECM-HC makes these shifts legible across twelve measurable dimensions, so defenders can reason about them rather than simply reacting to them.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THREE LEVELS ── -->
+  <section>
+    <div class="section-label">
+      <div class="section-label-bar" style="background:var(--amber)"></div>
+      <span class="section-label-text">The Escalation Spectrum</span>
+    </div>
+    <div class="spectrum">
+      <div class="spec-level f">
+        <div class="spec-badge">Foundational</div>
+        <div class="spec-title">Limited AI Influence</div>
+        <div class="spec-desc">AI assistance is sporadic and does not fundamentally change how the attacker operates. Traditional resource constraints still apply.</div>
+        <ul class="spec-signals">
+          <li>Generic phishing and opportunistic credential attacks</li>
+          <li>Scripted repetitive tasks, no real-time adaptation</li>
+          <li>Access is relatively easy to detect and remove</li>
+          <li>High attacker cost relative to impact achieved</li>
+        </ul>
+      </div>
+      <div class="spec-level a">
+        <div class="spec-badge">Advancing</div>
+        <div class="spec-title">AI Shapes the Campaign</div>
+        <div class="spec-desc">AI meaningfully influences tactics and decision-making. The intrusion lifecycle accelerates and becomes harder to disrupt.</div>
+        <ul class="spec-signals">
+          <li>Context-aware targeting; semi-autonomous workflows</li>
+          <li>Periodic AI-guided optimization of attack paths</li>
+          <li>Moderate evasion of detection and remediation</li>
+          <li>Growing asymmetry between attacker cost and defender effort</li>
+        </ul>
+      </div>
+      <div class="spec-level p">
+        <div class="spec-badge">Peak</div>
+        <div class="spec-title">AI Dominates the Intrusion</div>
+        <div class="spec-desc">Automation, adaptivity, and operational reach converge. Near-zero marginal cost for operations that would previously require teams of specialists.</div>
+        <ul class="spec-signals">
+          <li>Fully autonomous agents across the entire kill chain</li>
+          <li>Continuous real-time learning; AI-shaped traffic evasion</li>
+          <li>Control-plane compromise, AI-managed persistence</li>
+          <li>AI-integrated social engineering at scale</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DIMENSION MAP ── -->
+  <section>
+    <div class="section-label">
+      <div class="section-label-bar" style="background:var(--purple)"></div>
+      <span class="section-label-text">The 12 Dimensions</span>
+    </div>
+    <div class="dim-map">
+
+      <!-- Technical Enablement -->
+      <div class="dim-group">
+        <div class="dim-group-head tech">
+          <div class="dim-icon tech">⚙</div>
+          <div>
+            <div class="dim-group-name tech">Technical Enablement</div>
+            <div class="dim-group-sub">What the attacker can build and do</div>
+          </div>
+        </div>
+        <div class="dim-list">
+          <div class="dim-row tech">
+            <div class="dim-n tech">1</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Sophistication</div>
+              <div class="dim-content-desc">Complexity and novelty of AI-generated attack paths — from basic assistance to advanced multi-step exploitation sequences.</div>
+            </div>
+          </div>
+          <div class="dim-row tech">
+            <div class="dim-n tech">2</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Automation &amp; Autonomy</div>
+              <div class="dim-content-desc">How much of the attack lifecycle runs without a human in the loop — from sporadic AI help to fully autonomous agents.</div>
+            </div>
+          </div>
+          <div class="dim-row tech">
+            <div class="dim-n tech">3</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Adaptivity &amp; Learning Rate</div>
+              <div class="dim-content-desc">How fast the adversary adjusts when encountering defenses — from slow manual iteration to continuous real-time adaptation.</div>
+            </div>
+          </div>
+          <div class="dim-row tech">
+            <div class="dim-n tech">4</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Precision &amp; Targeting Quality</div>
+              <div class="dim-content-desc">Ability to identify and prioritize high-value targets — from broad opportunistic probing to highly accurate inference across identities and data flows.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operational -->
+      <div class="dim-group">
+        <div class="dim-group-head ops">
+          <div class="dim-icon ops">◎</div>
+          <div>
+            <div class="dim-group-name ops">Operational</div>
+            <div class="dim-group-sub">Tempo, breadth, and visibility of campaigns</div>
+          </div>
+        </div>
+        <div class="dim-list">
+          <div class="dim-row ops">
+            <div class="dim-n ops">5</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Scale</div>
+              <div class="dim-content-desc">Breadth of concurrent activity — from isolated probes to planet-scale automated operations across tenants and regions.</div>
+            </div>
+          </div>
+          <div class="dim-row ops">
+            <div class="dim-n ops">6</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Speed &amp; Tempo</div>
+              <div class="dim-content-desc">How fast the attacker moves through the intrusion lifecycle — creating compressing windows for detection and response.</div>
+            </div>
+          </div>
+          <div class="dim-row ops">
+            <div class="dim-n ops">7</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Stealth &amp; Detectability</div>
+              <div class="dim-content-desc">How effectively behaviors blend with legitimate traffic — from obvious anomalies to AI-shaped patterns that evade classifiers.</div>
+            </div>
+          </div>
+          <div class="dim-row ops">
+            <div class="dim-n ops">8</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Kill-Chain Coverage</div>
+              <div class="dim-content-desc">How pervasively AI supports the adversary across reconnaissance, delivery, exploitation, command, and objectives.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impact -->
+      <div class="dim-group">
+        <div class="dim-group-head impact">
+          <div class="dim-icon impact">△</div>
+          <div>
+            <div class="dim-group-name impact">Impact</div>
+            <div class="dim-group-sub">Scale and severity of successful intrusions</div>
+          </div>
+        </div>
+        <div class="dim-list">
+          <div class="dim-row impact">
+            <div class="dim-n impact">9</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Blast Radius &amp; Systemic Impact</div>
+              <div class="dim-content-desc">Horizontal spread across accounts and tenants plus vertical penetration toward privileged control surfaces.</div>
+            </div>
+          </div>
+          <div class="dim-row impact">
+            <div class="dim-n impact">10</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Persistence &amp; Durability</div>
+              <div class="dim-content-desc">Whether access survives credential rotation and infrastructure updates — escalating to AI-managed redundant persistence.</div>
+            </div>
+          </div>
+          <div class="dim-row impact">
+            <div class="dim-n impact">11</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Economic Efficiency</div>
+              <div class="dim-content-desc">The cost of an attack relative to the defensive cost required to stop it — trending toward near-zero marginal attacker cost at scale.</div>
+            </div>
+          </div>
+          <div class="dim-row impact">
+            <div class="dim-n impact">12</div>
+            <div class="dim-content">
+              <div class="dim-content-name">Human &amp; Social Exploitation</div>
+              <div class="dim-content-desc">AI-enhanced impersonation and manipulation tightly integrated with technical intrusion — across multiple channels simultaneously.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RUBRIC HEAT MAP ── -->
+  <section>
+    <div class="section-label">
+      <div class="section-label-bar" style="background:var(--muted)"></div>
+      <span class="section-label-text">Scoring Rubric — All 12 Dimensions</span>
+    </div>
+    <div class="rubric-wrap">
+      <div class="rubric-hdr">
+        <div class="rubric-hdr-cell dim-col">Dimension</div>
+        <div class="rubric-hdr-cell f-col">Foundational</div>
+        <div class="rubric-hdr-cell a-col">Advancing</div>
+        <div class="rubric-hdr-cell p-col">Peak</div>
+      </div>
+
+      <!-- Tech group label -->
+      <div style="display:grid;grid-template-columns:160px 1fr;background:var(--surface2);border-bottom:1px solid var(--border);">
+        <div style="padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c-tech);display:flex;align-items:center;gap:6px;">⚙ Technical</div>
+        <div></div>
+      </div>
+
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Sophistication</div>
+        <div class="rubric-cell f-c">Basic AI assistance with limited novelty</div>
+        <div class="rubric-cell a-c">AI enables multi-step reasoning or chaining</div>
+        <div class="rubric-cell p-c">AI creates advanced, adaptive, and novel attack paths</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Automation / Autonomy</div>
+        <div class="rubric-cell f-c">Manual activity with sporadic AI support</div>
+        <div class="rubric-cell a-c">Semi-autonomous workflows</div>
+        <div class="rubric-cell p-c">Fully autonomous agents conducting end-to-end operations</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Adaptivity / Learning Rate</div>
+        <div class="rubric-cell f-c">Slow manual adjustments</div>
+        <div class="rubric-cell a-c">Periodic AI-guided optimization</div>
+        <div class="rubric-cell p-c">Continuous real-time learning and adaptation</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Precision / Targeting</div>
+        <div class="rubric-cell f-c">Broad and imprecise targeting</div>
+        <div class="rubric-cell a-c">Context-aware prioritization</div>
+        <div class="rubric-cell p-c">Highly targeted identification of high-value assets</div>
+      </div>
+
+      <!-- Ops group label -->
+      <div style="display:grid;grid-template-columns:160px 1fr;background:var(--surface2);border-bottom:1px solid var(--border);border-top:1px solid var(--border);">
+        <div style="padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c-ops);display:flex;align-items:center;gap:6px;">◎ Operational</div>
+        <div></div>
+      </div>
+
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Scale</div>
+        <div class="rubric-cell f-c">Limited concurrent operations</div>
+        <div class="rubric-cell a-c">Moderate parallelization</div>
+        <div class="rubric-cell p-c">Planet-scale automated activity across tenants and regions</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Speed / Tempo</div>
+        <div class="rubric-cell f-c">Hours or days per iteration</div>
+        <div class="rubric-cell a-c">Frequent automated cycles</div>
+        <div class="rubric-cell p-c">Near-real-time adjustment and movement</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Stealth / Detectability</div>
+        <div class="rubric-cell f-c">Easily identifiable behaviors</div>
+        <div class="rubric-cell a-c">Moderate camouflage</div>
+        <div class="rubric-cell p-c">AI-shaped activity blending with legitimate traffic</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Kill-Chain Coverage</div>
+        <div class="rubric-cell f-c">AI used in isolated attack phases</div>
+        <div class="rubric-cell a-c">Several AI-supported phases</div>
+        <div class="rubric-cell p-c">AI enhances every phase of the intrusion lifecycle</div>
+      </div>
+
+      <!-- Impact group label -->
+      <div style="display:grid;grid-template-columns:160px 1fr;background:var(--surface2);border-bottom:1px solid var(--border);border-top:1px solid var(--border);">
+        <div style="padding:6px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--c-impact);display:flex;align-items:center;gap:6px;">△ Impact</div>
+        <div></div>
+      </div>
+
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Blast Radius</div>
+        <div class="rubric-cell f-c">Minimal localized impact</div>
+        <div class="rubric-cell a-c">Moderate spread or privilege gain</div>
+        <div class="rubric-cell p-c">Large-scale or control-plane–level compromise</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Persistence / Durability</div>
+        <div class="rubric-cell f-c">Access easily removed</div>
+        <div class="rubric-cell a-c">Some evasion of remediation</div>
+        <div class="rubric-cell p-c">AI-managed long-term persistence with redundancy</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Economic Efficiency</div>
+        <div class="rubric-cell f-c">High attacker cost</div>
+        <div class="rubric-cell a-c">Balanced cost</div>
+        <div class="rubric-cell p-c">Near-zero marginal cost for extensive operations</div>
+      </div>
+      <div class="rubric-row">
+        <div class="rubric-cell dim-c">Human / Social Exploitation</div>
+        <div class="rubric-cell f-c">Generic phishing or messaging</div>
+        <div class="rubric-cell a-c">Contextual impersonation</div>
+        <div class="rubric-cell p-c">AI-driven multi-channel manipulation integrated with technical actions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DO / DON'T ── -->
+  <section>
+    <div class="section-label">
+      <div class="section-label-bar" style="background:var(--green)"></div>
+      <span class="section-label-text">Strategic Implications</span>
+    </div>
+    <div class="central-q">
+      Given that AI fundamentally shifts what adversaries can do,<br>where does this model direct defenders to change?
+    </div>
+    <div class="bifurcation">
+      <div class="bif-card dont">
+        <div class="bif-label">
+          <div class="bif-label-icon">✕</div>
+          Don't
+        </div>
+        <div class="bif-heading">Treat AI-enabled threats as incremental upgrades to known attack patterns</div>
+        <ul class="bif-items">
+          <li class="bif-item"><strong>Don't anchor threat models to historical resource requirements.</strong> Sophisticated, targeted attacks are no longer restricted to nation-state actors with large teams.</li>
+          <li class="bif-item"><strong>Don't assume human-speed detection is sufficient.</strong> When attackers can adapt in real time, response windows measured in hours are too slow.</li>
+          <li class="bif-item"><strong>Don't evaluate adversaries dimension-by-dimension in isolation.</strong> The model's power is in understanding which dimensions are reinforcing each other — high autonomy plus high stealth is categorically more dangerous than either alone.</li>
+          <li class="bif-item"><strong>Don't use numeric scoring for false precision.</strong> The three qualitative levels exist deliberately to keep analysis grounded in meaningful shifts, not spurious ranking.</li>
+        </ul>
+      </div>
+      <div class="bif-card do">
+        <div class="bif-label">
+          <div class="bif-label-icon">✓</div>
+          Do
+        </div>
+        <div class="bif-heading">Use the 12 dimensions to build shared threat language across technical and leadership teams</div>
+        <ul class="bif-items">
+          <li class="bif-item"><strong>Use AECM-HC for scenario planning and tabletop exercises.</strong> Score specific threat actors across all twelve dimensions to surface where defenses are most exposed.</li>
+          <li class="bif-item"><strong>Invest in automation-first defenses.</strong> When adversaries operate autonomously, manual response cannot keep pace — detection and containment must match attacker tempo.</li>
+          <li class="bif-item"><strong>Track economic efficiency as a leading indicator.</strong> When attacker cost falls toward zero, volume and breadth of attacks will expand — plan capacity accordingly.</li>
+          <li class="bif-item"><strong>Pair AECM-HC with MITRE ATT&amp;CK for tactical depth.</strong> ATT&amp;CK maps specific techniques; AECM-HC frames the adversary's overall capability level — use both together.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="asymmetry">
+      <div class="asym-icon">⚡</div>
+      <div class="asym-text">
+        <strong>The core asymmetry.</strong> As adversaries reach Peak across dimensions like Automation, Economic Efficiency, and Scale, the marginal cost of conducting another attack approaches zero — while each defensive response still consumes significant human and computational resources. AECM-HC makes this asymmetry explicit so investment decisions can be made with a clear view of what is changing and why the current defensive cost curve may not hold.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-left">
+      AI-Enabled Adversary Capability Model for Hyperscale Cloud &mdash; AECM-HC<br>
+      AI Security Strategy Desk &middot; Reference Framework
+    </div>
+    <div class="footer-right">
+      Complements MITRE ATT&amp;CK &amp; NIST CSF<br>
+      Adversary perspective &middot; Qualitative scoring
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
