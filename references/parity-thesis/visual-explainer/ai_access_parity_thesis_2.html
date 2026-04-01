@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Access Parity Thesis</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #d2a8ff;
+    --accent5: #ffa657;
+    --accent6: #79c0ff;
+    --yellow: #e3b341;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  h2 { font-size: 18px; font-weight: 600; color: var(--accent); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+  h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 40px;
+    max-width: 700px;
+  }
+
+  .section { margin-bottom: 48px; }
+
+  /* ── THESIS STATEMENT ── */
+  .thesis-box {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .thesis-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent4));
+  }
+  .thesis-box p {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .thesis-box .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  /* ── LAYER DIAGRAM ── */
+  .layer-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .layer {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .layer:last-child { border-bottom: none; }
+
+  .layer-label {
+    width: 180px;
+    min-width: 180px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .layer-label .sublabel {
+    font-weight: 400;
+    font-size: 11px;
+    margin-top: 3px;
+    opacity: 0.7;
+  }
+
+  .layer-content {
+    flex: 1;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .layer-status {
+    width: 140px;
+    min-width: 140px;
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    border-left: 1px solid var(--border);
+  }
+
+  .layer.model { background: #1a2035; }
+  .layer.application { background: #1a2820; }
+  .layer.operating { background: #1e1e2e; }
+
+  .layer.model .layer-label { color: var(--accent); }
+  .layer.application .layer-label { color: var(--accent2); }
+  .layer.operating .layer-label { color: var(--accent4); }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 5px;
+  }
+  .pill-red { background: rgba(247,129,102,0.15); color: var(--accent3); border: 1px solid rgba(247,129,102,0.3); }
+  .pill-green { background: rgba(63,185,80,0.15); color: var(--accent2); border: 1px solid rgba(63,185,80,0.3); }
+  .pill-blue { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
+  .pill-purple { background: rgba(210,168,255,0.15); color: var(--accent4); border: 1px solid rgba(210,168,255,0.3); }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* ── DIFFUSION TIMELINE ── */
+  .diffusion-track {
+    position: relative;
+    padding: 16px 0;
+  }
+  .diffusion-axis {
+    position: relative;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 28px 0 40px;
+  }
+  .diffusion-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent3), var(--yellow), var(--accent2));
+    width: 85%;
+  }
+  .diffusion-markers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+  .diffusion-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    text-align: center;
+  }
+  .diffusion-marker .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .diffusion-marker .dm-label { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .diffusion-marker .dm-sub { font-size: 11px; color: var(--muted); }
+
+  /* ── ADVANTAGE GRID ── */
+  .advantage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .adv-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .adv-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 3px 0 0 3px;
+  }
+  .adv-card.c1::before { background: var(--accent); }
+  .adv-card.c2::before { background: var(--accent2); }
+  .adv-card.c3::before { background: var(--accent4); }
+  .adv-card.c4::before { background: var(--accent5); }
+  .adv-card.c5::before { background: var(--accent3); }
+  .adv-card.c6::before { background: var(--yellow); }
+
+  .adv-icon { font-size: 20px; margin-bottom: 8px; }
+  .adv-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .adv-body { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── HYPOTHESES ── */
+  .hyp-list { display: flex; flex-direction: column; gap: 12px; }
+  .hyp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .hyp-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+  }
+  .hyp-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .hyp-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .hyp-body {
+    padding: 0 20px 16px 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .hyp-section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .hyp-section-label.signals { color: var(--accent2); }
+  .hyp-section-label.implications { color: var(--accent); }
+  .hyp-section-label.falsifiers { color: var(--accent3); }
+  .hyp-body ul { padding-left: 14px; }
+  .hyp-body li { font-size: 12px; color: var(--muted); margin-bottom: 4px; line-height: 1.5; }
+
+  .h1c { background: rgba(88,166,255,0.08); }
+  .h1c .hyp-num { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .h2c { background: rgba(63,185,80,0.08); }
+  .h2c .hyp-num { background: rgba(63,185,80,0.2); color: var(--accent2); }
+  .h3c { background: rgba(210,168,255,0.08); }
+  .h3c .hyp-num { background: rgba(210,168,255,0.2); color: var(--accent4); }
+  .h4c { background: rgba(255,166,87,0.08); }
+  .h4c .hyp-num { background: rgba(255,166,87,0.2); color: var(--accent5); }
+  .h5c { background: rgba(227,179,65,0.08); }
+  .h5c .hyp-num { background: rgba(227,179,65,0.2); color: var(--yellow); }
+
+  /* ── ANALOGIES ── */
+  .analogy-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .analogy-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+  }
+  .analogy-icon { font-size: 28px; margin-bottom: 10px; }
+  .analogy-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .analogy-sub { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .analogy-arrow {
+    font-size: 11px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .analogy-a { color: var(--accent3); font-weight: 600; }
+  .analogy-b { color: var(--accent2); font-weight: 600; }
+
+  /* ── ACCESS vs ADVANTAGE ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .compare-card {
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .compare-card.access {
+    background: rgba(247,129,102,0.08);
+    border: 1px solid rgba(247,129,102,0.25);
+  }
+  .compare-card.advantage {
+    background: rgba(63,185,80,0.08);
+    border: 1px solid rgba(63,185,80,0.25);
+  }
+  .compare-card h3.access-h { color: var(--accent3); }
+  .compare-card h3.advantage-h { color: var(--accent2); }
+  .compare-card ul { padding-left: 16px; margin-top: 10px; }
+  .compare-card li { font-size: 13px; color: var(--muted); margin-bottom: 6px; line-height: 1.5; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .badge-red { background: rgba(247,129,102,0.2); color: var(--accent3); }
+  .badge-green { background: rgba(63,185,80,0.2); color: var(--accent2); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  .section-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="margin-bottom: 40px;">
+  <h1>AI Access Parity Thesis</h1>
+  <p class="subtitle">Frontier AI capabilities will diffuse broadly via commercial platforms — shifting durable advantage from <em>owning better models</em> to <em>operationalizing AI better</em> than peers and adversaries.</p>
+</div>
+
+<!-- SECTION 1: THESIS -->
+<div class="section">
+  <h2>Core Thesis</h2>
+  <div class="thesis-box">
+    <div class="label">Thesis Statement</div>
+    <p>Because frontier AI development is capital-intensive and economically rewarded through mass commercial adoption, breakthrough capabilities will be delivered via global platforms — APIs, products, cloud services, and on-device runtimes. Most organizations will have access to broadly similar baseline AI capabilities within <strong>weeks to months</strong> of major advances, making long-lived superiority from "having better AI" comparatively unlikely outside of narrow, constrained domains.</p>
+  </div>
+</div>
+
+<!-- SECTION 2: THREE LAYERS -->
+<div class="section">
+  <h2>The Three-Layer Model</h2>
+  <p class="section-meta">Competition is moving up the stack. Advantage at the model layer is trending toward commodity.</p>
+  <div class="layer-diagram">
+
+    <div class="layer model">
+      <div class="layer-label">
+        Model Layer
+        <span class="sublabel">Foundation models, inference</span>
+      </div>
+      <div class="layer-content">
+        <div class="tag-row">
+          <span class="pill pill-red">Commoditizing</span>
+          <span class="pill pill-blue">Access: Broad</span>
+        </div>
+        <div style="font-size:12px; color:var(--muted);">Capabilities packaged as APIs and products — purchasable by most actors. Concentrated production, democratized consumption. Differentiation erodes to cost, latency, and policy controls.</div>
+      </div>
+      <div class="layer-status" style="color:var(--accent3); background:rgba(247,129,102,0.06);">
+        Trending toward<br>parity
+      </div>
+    </div>
+
+    <div class="layer application">
+      <div class="layer-label">
+        Application Layer
+        <span class="sublabel">Workflows, integration, data</span>
+      </div>
+      <div class="layer-content">
+        <div class="tag-row">
+          <span class="pill pill-green">Differentiating</span>
+          <span class="pill pill-blue">Advantage: Uneven</span>
+        </div>
+        <div style="font-size:12px; color:var(--muted);">Proprietary data, RAG pipelines, tool integrations, domain-specific workflows, distribution ownership. Fast followers compress assembly-based advantage — unique context survives.</div>
+      </div>
+      <div class="layer-status" style="color:var(--accent2); background:rgba(63,185,80,0.06);">
+        Primary<br>battleground
+      </div>
+    </div>
+
+    <div class="layer operating">
+      <div class="layer-label">
+        Operating Model Layer
+        <span class="sublabel">Governance, talent, execution</span>
+      </div>
+      <div class="layer-content">
+        <div class="tag-row">
+          <span class="pill pill-purple">Decisive</span>
+          <span class="pill pill-blue">Advantage: Durable</span>
+        </div>
+        <div style="font-size:12px; color:var(--muted);">Measurement, iteration discipline, security controls, governance, compliance readiness, talent. Determines whether AI scales from pilot to enterprise. Hardest to copy.</div>
+      </div>
+      <div class="layer-status" style="color:var(--accent4); background:rgba(210,168,255,0.06);">
+        Durable<br>moat
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 3: ACCESS vs ADVANTAGE -->
+<div class="section">
+  <h2>Access ≠ Advantage</h2>
+  <p class="section-meta">The thesis separates two distinct questions. Getting this distinction wrong leads to either underinvestment or misallocated strategy.</p>
+  <div class="two-col">
+    <div class="compare-card access">
+      <span class="badge badge-red">Access — Broad &amp; Fast</span>
+      <h3 class="access-h">Who can obtain capable AI</h3>
+      <ul>
+        <li>Similar model capabilities are purchasable by most actors within months</li>
+        <li>Delivered via mainstream tools: assistants, coding copilots, productivity suites</li>
+        <li>Tiered by price, latency, and policy — not by capability ceiling</li>
+        <li>Adversaries gain comparable baselines through commercial channels</li>
+        <li>Conclusion: <strong>assume adversary capability parity at the model layer</strong></li>
+      </ul>
+    </div>
+    <div class="compare-card advantage">
+      <span class="badge badge-green">Advantage — Highly Uneven</span>
+      <h3 class="advantage-h">Who translates AI into outcomes</h3>
+      <ul>
+        <li>Two organizations using the same model can produce radically different results</li>
+        <li>Driven by data quality, integration depth, governance, and iteration speed</li>
+        <li>Compounding: workflow integration creates aggregating efficiency gains</li>
+        <li>Trust and security determine whether AI deploys at scale vs. stays in pilots</li>
+        <li>Conclusion: <strong>compete on context superiority, not model selection</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: DIFFUSION SPEED -->
+<div class="section">
+  <h2>Capability Diffusion Speed</h2>
+  <p class="section-meta">Historical analogies suggest concentrated production, democratized consumption. AI is following the same pattern.</p>
+  <div class="analogy-row">
+    <div class="analogy-card">
+      <div class="analogy-icon">⚡</div>
+      <div class="analogy-title">Electricity &amp; the Grid</div>
+      <div class="analogy-sub">Few entities build power plants; almost everyone can plug in devices.</div>
+      <div class="analogy-arrow">
+        <span class="analogy-a">Production: concentrated</span>
+        <span>→</span>
+        <span class="analogy-b">Use: universal</span>
+      </div>
+    </div>
+    <div class="analogy-card">
+      <div class="analogy-icon">☁️</div>
+      <div class="analogy-title">Cloud Computing</div>
+      <div class="analogy-sub">A few hyperscalers run global infra; startups and governments consume same primitives.</div>
+      <div class="analogy-arrow">
+        <span class="analogy-a">Infrastructure: few</span>
+        <span>→</span>
+        <span class="analogy-b">Differentiation: software &amp; ops</span>
+      </div>
+    </div>
+    <div class="analogy-card">
+      <div class="analogy-icon">📱</div>
+      <div class="analogy-title">Smartphone Platforms</div>
+      <div class="analogy-sub">Hardware breakthroughs propagate to mass-market devices quickly.</div>
+      <div class="analogy-arrow">
+        <span class="analogy-a">Platform: commoditizes</span>
+        <span>→</span>
+        <span class="analogy-b">Apps: design &amp; trust</span>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:16px; padding:14px 18px; background:var(--surface); border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--muted);">
+    <strong style="color:var(--text);">Current AI pattern:</strong> Model capabilities are packaged as services, embedded in mainstream products, and competed on price, safety controls, latency, reliability, and developer ecosystem. "Getting access to capable models" is trending toward a <strong>procurement and platform-integration problem</strong>, not a breakthrough R&D problem.
+  </div>
+</div>
+
+<!-- SECTION 5: ADVANTAGE LEVERS -->
+<div class="section">
+  <h2>Six Advantage Levers Under Parity</h2>
+  <p class="section-meta">When adversaries have equal access to models, advantage accrues through context and execution. These are the primary strategic investment areas.</p>
+  <div class="advantage-grid">
+
+    <div class="adv-card c1">
+      <div class="adv-icon">🗄️</div>
+      <div class="adv-title">Proprietary &amp; High-Signal Data</div>
+      <div class="adv-body">Unique datasets, labeled outcomes, operational telemetry, and domain knowledge. Feedback loops that refresh from real usage compound the lead over time.</div>
+    </div>
+
+    <div class="adv-card c2">
+      <div class="adv-icon">🔗</div>
+      <div class="adv-title">Distribution &amp; Workflow Ownership</div>
+      <div class="adv-body">Embedded where work happens — systems of record, developer tools, customer channels. Creates higher usage, more feedback, faster iteration, and switching costs.</div>
+    </div>
+
+    <div class="adv-card c3">
+      <div class="adv-icon">⚙️</div>
+      <div class="adv-title">Integration Depth &amp; Automation</div>
+      <div class="adv-body">Connecting AI to real tools and actions — ticketing, CI/CD, IAM, incident response — safely. Reduces human-in-the-loop friction while preserving control.</div>
+    </div>
+
+    <div class="adv-card c4">
+      <div class="adv-icon">🛡️</div>
+      <div class="adv-title">Security, Trust &amp; Governance</div>
+      <div class="adv-body">Guardrails, auditability, policy enforcement, red-teaming, incident response. Organizations that can prove safety ship faster and broader than those stuck in perpetual pilots.</div>
+    </div>
+
+    <div class="adv-card c5">
+      <div class="adv-icon">🖥️</div>
+      <div class="adv-title">Compute Guarantees &amp; Locality</div>
+      <div class="adv-body">Predictable capacity, latency, data-residency, and isolated environments. Differentiating for mission-critical and regulated workflows where generic tiers are insufficient.</div>
+    </div>
+
+    <div class="adv-card c6">
+      <div class="adv-icon">🎯</div>
+      <div class="adv-title">Talent, Operating Model &amp; Discipline</div>
+      <div class="adv-body">Clear ownership, measurable outcomes, evaluation standards, rapid release. Under parity, the ability to run a tight improvement loop matters more than model selection.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 6: HYPOTHESES -->
+<div class="section">
+  <h2>Five Supporting Hypotheses</h2>
+  <p class="section-meta">Each hypothesis is testable. Observable signals and falsifiers allow the thesis to be tracked and updated as conditions evolve.</p>
+
+  <div class="hyp-list">
+
+    <div class="hyp-card h1c">
+      <div class="hyp-header">
+        <div class="hyp-num">H1</div>
+        <div>
+          <div class="hyp-title">Rapid diffusion of frontier capabilities via platforms</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">Major model improvements become broadly available in weeks to months, not years.</div>
+        </div>
+      </div>
+      <div class="hyp-body">
+        <div>
+          <div class="hyp-section-label signals">Observable Signals</div>
+          <ul>
+            <li>Capabilities appear as API upgrades shortly after demos</li>
+            <li>Price/performance competition intensifies across providers</li>
+            <li>Compatibility layers reduce switching costs</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label implications">Strategic Implications</div>
+          <ul>
+            <li>Assume adversaries gain near-peer baselines</li>
+            <li>Prioritize speed-to-integration over capability</li>
+            <li>Architect model-agnostic systems</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label falsifiers">Falsifiers</div>
+          <ul>
+            <li>Sustained multi-year capability gap with no substitutes</li>
+            <li>Regulatory/export controls sharply limit access</li>
+            <li>Hardware scarcity prevents broad availability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card h2c">
+      <div class="hyp-header">
+        <div class="hyp-num">H2</div>
+        <div>
+          <div class="hyp-title">Inference becomes commodity; differentiation shifts to reliability and policy</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">Vendor competition centers on cost, latency, governance, and integration — not benchmark deltas.</div>
+        </div>
+      </div>
+      <div class="hyp-body">
+        <div>
+          <div class="hyp-section-label signals">Observable Signals</div>
+          <ul>
+            <li>Emphasis shifts to SLAs, policy controls, data residency</li>
+            <li>Growth of orchestration, routing, and eval frameworks</li>
+            <li>Procurement asks "safest and cheapest" not "smartest"</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label implications">Strategic Implications</div>
+          <ul>
+            <li>Invest in internal AI platform layer</li>
+            <li>Treat models as interchangeable behind stable interface</li>
+            <li>Apply reliability engineering to AI dependencies</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label falsifiers">Falsifiers</div>
+          <ul>
+            <li>Model quality remains dominant differentiator</li>
+            <li>One provider captures share via unmatched advantage</li>
+            <li>Governance features fail to mature across vendors</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card h3c">
+      <div class="hyp-header">
+        <div class="hyp-num">H3</div>
+        <div>
+          <div class="hyp-title">Open ecosystems compress "secret sauce" advantages</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">Common tools and reference architectures spread rapidly, reducing durability of assembly-based advantages.</div>
+        </div>
+      </div>
+      <div class="hyp-body">
+        <div>
+          <div class="hyp-section-label signals">Observable Signals</div>
+          <ul>
+            <li>Production-ready eval tools and guardrail libraries widespread</li>
+            <li>Reference implementations reused across industries</li>
+            <li>Convergence on standard RAG, tool-use, monitoring patterns</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label implications">Strategic Implications</div>
+          <ul>
+            <li>Don't rely on "assembled first" as a durable moat</li>
+            <li>Differentiate via proprietary context and distribution</li>
+            <li>Build repeatable capability to ship AI safely and quickly</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label falsifiers">Falsifiers</div>
+          <ul>
+            <li>Key techniques remain proprietary without privileged access</li>
+            <li>Legal barriers prevent effective pattern diffusion</li>
+            <li>Ecosystem fragments into incompatible stacks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card h4c">
+      <div class="hyp-header">
+        <div class="hyp-num">H4</div>
+        <div>
+          <div class="hyp-title">Government "sovereign replicas" lag the frontier for most use-cases</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">Most governments rely on commercial procurement, not independent frontier development — except narrow national-security programs.</div>
+        </div>
+      </div>
+      <div class="hyp-body">
+        <div>
+          <div class="hyp-section-label signals">Observable Signals</div>
+          <ul>
+            <li>Growth in public-private partnerships and accredited vendors</li>
+            <li>Focus on secure deployment patterns vs. independent training</li>
+            <li>National programs target select domains, not general parity</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label implications">Strategic Implications</div>
+          <ul>
+            <li>Expect adversaries to access models via commercial channels</li>
+            <li>Track regulatory/procurement requirements closely</li>
+            <li>Support constrained deployment (data residency, isolated inference)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label falsifiers">Falsifiers</div>
+          <ul>
+            <li>Multiple governments sustain frontier-equivalent models at scale</li>
+            <li>Procurement barriers fall; public sector matches commercial cadence</li>
+            <li>Geopolitical fragmentation eliminates commercial platform access</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="hyp-card h5c">
+      <div class="hyp-header">
+        <div class="hyp-num">H5</div>
+        <div>
+          <div class="hyp-title">Human and organizational variance dominates model variance</div>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">Outcome differences are driven more by integration, data, and governance than by model selection.</div>
+        </div>
+      </div>
+      <div class="hyp-body">
+        <div>
+          <div class="hyp-section-label signals">Observable Signals</div>
+          <ul>
+            <li>Wide performance spread between orgs using similar models</li>
+            <li>AI programs succeed where process owners and security align</li>
+            <li>Metrics shift to cycle time and reliability, not benchmarks</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label implications">Strategic Implications</div>
+          <ul>
+            <li>Treat AI transformation as operating-model change, not tooling</li>
+            <li>Prioritize high-leverage workflows; instrument outcomes</li>
+            <li>Invest in enablement to make good usage repeatable</li>
+          </ul>
+        </div>
+        <div>
+          <div class="hyp-section-label falsifiers">Falsifiers</div>
+          <ul>
+            <li>Similar workflows still show minimal variance — model choice dominates</li>
+            <li>AI adoption stays superficial (chat only); no workflow integration</li>
+            <li>Security/regulatory constraints prevent meaningful enterprise integration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 7: STRATEGIC IMPLICATIONS SUMMARY -->
+<div class="section">
+  <h2>Strategic Reframe</h2>
+  <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:24px 28px;">
+    <p style="font-size:15px; color:var(--muted); line-height:1.8;">
+      Accepting access parity as a working assumption reframes the central strategic question:
+    </p>
+    <p style="font-size:16px; color:var(--text); line-height:1.8; margin-top:12px; padding:16px 20px; background:var(--bg); border-radius:8px; border-left:3px solid var(--accent);">
+      How does an organization build a system that converts <strong>widely available AI capability</strong> into <strong>repeatable, secure, governed execution advantage</strong> faster than adversaries can copy or match?
+    </p>
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:20px;">
+      <div style="padding:12px 16px; background:rgba(247,129,102,0.08); border:1px solid rgba(247,129,102,0.2); border-radius:6px;">
+        <div style="font-size:11px; font-weight:600; color:var(--accent3); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Don't Compete On</div>
+        <ul style="padding-left:16px; font-size:12px; color:var(--muted);">
+          <li>Having "better AI" than adversaries</li>
+          <li>Exclusive access to frontier models</li>
+          <li>Novel assembly of public components</li>
+          <li>Benchmark performance</li>
+        </ul>
+      </div>
+      <div style="padding:12px 16px; background:rgba(63,185,80,0.08); border:1px solid rgba(63,185,80,0.2); border-radius:6px;">
+        <div style="font-size:11px; font-weight:600; color:var(--accent2); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Do Compete On</div>
+        <ul style="padding-left:16px; font-size:12px; color:var(--muted);">
+          <li>Context superiority: data, integration, governance</li>
+          <li>Speed of safe, measured iteration</li>
+          <li>Trust as a delivery mechanism for scale</li>
+          <li>Operating model discipline and outcomes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+<div style="font-size:11px; color:var(--muted); text-align:center;">
+  AI Security Strategy Desk · AI Access Parity Thesis · Reference: <code>references/parity-thesis/ai_access_parity_thesis.md</code>
+</div>
+
+</body>
+</html>
