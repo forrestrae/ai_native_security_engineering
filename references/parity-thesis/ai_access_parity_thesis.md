@@ -8,7 +8,7 @@ This document formalizes a strategic thesis about how advanced AI capabilities w
 * In that environment, durable advantage is less about exclusive algorithms and more about context: proprietary data, distribution, integration, security, governance, and execution discipline.
 * Strategy should assume capability parity at the model layer and compete at the application and operating-model layers: workflows, controls, trust, speed, and resilience.
 
-The rest of this document (1) states and clarifies the thesis with plain-language examples, (2) explains the crucial caveat: equal access is not equal advantage, and how to build and sustain advantage under parity conditions, and (3) proposes supporting hypothesesThe curr/rel.
+The rest of this document (1) states and clarifies the thesis with plain-language examples, (2) explains the crucial caveat: equal access is not equal advantage, and how to build and sustain advantage under parity conditions, and (3) proposes supporting hypotheses.
 
 ## AI Access Parity Thesis
 
